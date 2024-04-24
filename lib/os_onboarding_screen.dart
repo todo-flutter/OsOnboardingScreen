@@ -114,8 +114,7 @@ class _OSOnboardingScreenState extends State<OSOnboardingScreen> {
     return SimpleOnboardingView(
       title: widget.titleStyle,
       subTitle: widget.subTitleStyle,
-      isSimple:
-          widget.onboardingType == OnboardingType.simpleWithProgressButton,
+      isSimple: widget.onboardingType == OnboardingType.simple,
       buttonNextStyle: widget.buttonNextStyle,
       buttonNextTitle: widget.buttonNextTitle,
       buttonSkipStyle: widget.buttonSkipStyle,
