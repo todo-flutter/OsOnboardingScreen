@@ -52,7 +52,7 @@ class SimpleOnboardingView extends StatelessWidget {
           flex: 9,
           child: PageView.builder(
               controller: state.pageController,
-              onPageChanged: state.setPage,
+              onPageChanged: (e) => state.setPage(e, false),
               itemCount: state.length,
               itemBuilder: (BuildContext context, index) {
                 final pageData = state.pages[index];

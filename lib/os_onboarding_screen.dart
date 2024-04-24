@@ -73,14 +73,16 @@ class _OSOnboardingScreenState extends State<OSOnboardingScreen> {
   }
 
   // Configurar la página activa
-  void _setPage(int index) {
+  void _setPage(int index, bool updatePage) {
     setState(() {
+      if (updatePage) {
+        _pageController.animateToPage(
+          index,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.ease,
+        );
+      }
       _currentIndex = index;
-      _pageController.animateToPage(
-        _currentIndex,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.ease,
-      );
     });
   }
 

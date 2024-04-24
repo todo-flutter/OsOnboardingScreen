@@ -3,7 +3,7 @@ import 'package:os_onboarding_screen/os_onboarding_screen.dart';
 
 class OnBoardingStateController extends InheritedWidget {
   final PageController pageController;
-  final Function(int) setPage;
+  final Function(int, bool updatePage) setPage;
   final void Function() onDone;
   final List<OnboardingModel> pages;
   final int index;
@@ -38,7 +38,7 @@ class OnBoardingStateController extends InheritedWidget {
     final next = index + 1;
 
     if (_validateOnPageChange(next)) {
-      setPage(next);
+      setPage(next, true);
     } else {
       onDone();
     }
@@ -47,12 +47,12 @@ class OnBoardingStateController extends InheritedWidget {
   void prev() {
     final next = index - 1;
     if (_validateOnPageChange(next)) {
-      setPage(next);
+      setPage(next, false);
     }
   }
 
   void skip() {
-    setPage(pages.length - 1);
+    setPage(pages.length - 1, true);
   }
 
   bool _validateOnPageChange(int next) {
