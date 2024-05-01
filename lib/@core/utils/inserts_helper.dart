@@ -1,5 +1,29 @@
 import 'package:flutter/material.dart';
 
+/// A helper class for common inset values.
+///
+/// The `InsetsHelper` class provides a set of constant double values for
+/// commonly used insets, padding, margins, or other spacing-related measurements.
+/// These constants can be used to maintain consistent spacing across a Flutter
+/// application, reducing the need for hardcoding values and promoting reusability.
+///
+/// **Usage**:
+/// Instead of hardcoding inset values throughout your Flutter code, use constants
+/// from `InsetsHelper` for more maintainable and consistent code. This can be
+/// especially useful for padding and margin insets, ensuring consistent spacing
+/// throughout your app.
+///
+/// **Common Values**:
+/// - [i0] through [i100]: A set of predefined constants for common inset values.
+/// - Can be used for padding, margins, spacing, or any other layout-related purposes.
+///
+/// Example:
+/// ```dart
+/// Padding(
+///   padding: EdgeInsets.all(InsetsHelper.i8),
+///   child: Text("Hello, World!"),
+/// )
+/// ```
 @immutable
 class InsetsHelper {
   static const double i0 = 0;

@@ -1,54 +1,74 @@
 import 'package:flutter/material.dart';
-
 import 'dart:math' as math;
 
 import 'package:os_onboarding_screen/onboarding_controller.dart';
 
+const double _circleSize = 80.0;
+const double _innerCircleSize = 55.0;
+const double _iconSize = 15.0;
+
+/// A round button widget with a progress indicator used in onboarding screens.
+///
+/// The `SimpleProgressRoundButtonWidget` shows a circular progress bar with a
+/// central button. The button can change its appearance and functionality
+/// depending on whether it's the last step of the onboarding process or not.
+/// This widget typically resides at the bottom of the screen and helps users
+/// navigate through onboarding steps.
 class SimpleProgressRoundButtonWidget extends StatelessWidget {
   const SimpleProgressRoundButtonWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
     final state = OnBoardingStateController.of(context);
+
     return Stack(
       alignment: Alignment.center,
       children: [
         SizedBox(
-          width: 80,
-          height: 80,
+          width: _circleSize,
+          height: _circleSize,
           child: CircleProgressBar(
             backgroundColor: Colors.white,
             foregroundColor: state.isLastIndex
                 ? Colors.green
                 : Theme.of(context).primaryColor,
-            value: ((state.index + 1) * 1.0 / state.length),
+            value: (state.currentIndex + 1) / state.length.toDouble(),
           ),
         ),
-        Container(
-          height: 55,
-          width: 55,
-          decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: state.isLastIndex
-                  ? Colors.green
-                  : Theme.of(context).primaryColor),
-          child: IconButton(
-            onPressed: () {
-              state.next();
-            },
-            icon: Icon(
-              !state.isLastIndex ? Icons.arrow_forward_ios : Icons.check,
-              color: Colors.white,
-            ),
-            iconSize: 15,
-          ),
-        )
+        _buildInnerCircle(state, context),
       ],
+    );
+  }
+
+  Widget _buildInnerCircle(
+      OnBoardingStateController state, BuildContext context) {
+    final color = state.isLastIndex
+        ? Colors.green
+        : OnBoardingStateController.of(context).styles.indicatorColor ??
+            Theme.of(context).primaryColor;
+
+    return Container(
+      height: _innerCircleSize,
+      width: _innerCircleSize,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: color,
+      ),
+      child: TextButton(
+          onPressed: state.next,
+          child: !state.isLastIndex
+              ? Text(
+                  '${state.currentIndex + 1}',
+                  style: const TextStyle(color: Colors.white),
+                )
+              : const Icon(
+                  Icons.check,
+                  color: Colors.white,
+                )),
     );
   }
 }
 
-/// Draws a circular animated progress bar.
 class CircleProgressBar extends StatefulWidget {
   final Duration? animationDuration;
   final Color backgroundColor;
@@ -64,41 +84,36 @@ class CircleProgressBar extends StatefulWidget {
   });
 
   @override
-  CircleProgressBarState createState() {
-    return CircleProgressBarState();
-  }
+  State<CircleProgressBar> createState() => _CircleProgressBarState();
 }
 
-class CircleProgressBarState extends State<CircleProgressBar>
+class _CircleProgressBarState extends State<CircleProgressBar>
     with SingleTickerProviderStateMixin {
-  late AnimationController? _controller;
-
-  late Animation<double> curve;
-  late Tween<double>? valueTween;
-  Tween<Color?>? backgroundColorTween;
-  Tween<Color?>? foregroundColorTween;
+  late final AnimationController _controller;
+  late final Animation<double> _curve;
+  late Tween<double>? _valueTween;
+  Tween<Color?>? _backgroundColorTween;
+  Tween<Color?>? _foregroundColorTween;
 
   @override
   void initState() {
     super.initState();
-
     _controller = AnimationController(
-      duration: widget.animationDuration,
+      duration: widget.animationDuration!,
       vsync: this,
     );
 
-    curve = CurvedAnimation(
-      parent: _controller!,
+    _curve = CurvedAnimation(
+      parent: _controller,
       curve: Curves.easeInOut,
     );
 
-    // Build the initial required tweens.
-    valueTween = Tween<double>(
-      begin: 0,
-      end: widget.value,
-    );
+    _initTweens();
+    _controller.forward();
+  }
 
-    _controller!.forward();
+  void _initTweens() {
+    _valueTween = Tween<double>(begin: 0, end: widget.value);
   }
 
   @override
@@ -106,44 +121,43 @@ class CircleProgressBarState extends State<CircleProgressBar>
     super.didUpdateWidget(oldWidget);
 
     if (widget.value != oldWidget.value) {
-      // Try to start with the previous tween's end value. This ensures that we
-      // have a smooth transition from where the previous animation reached.
-      double beginValue = valueTween?.evaluate(curve) ?? oldWidget.value!;
-
-      // Update the value tween.
-      valueTween = Tween<double>(
+      double beginValue = _valueTween?.evaluate(_curve) ?? oldWidget.value!;
+      _valueTween = Tween<double>(
         begin: beginValue,
         end: widget.value,
       );
 
-      // Clear cached color tweens when the color hasn't changed.
-      if (oldWidget.backgroundColor != widget.backgroundColor) {
-        backgroundColorTween = ColorTween(
-          begin: oldWidget.backgroundColor,
-          end: widget.backgroundColor,
-        );
-      } else {
-        backgroundColorTween = null;
-      }
+      _updateColorTweens(oldWidget);
 
-      if (oldWidget.foregroundColor != widget.foregroundColor) {
-        foregroundColorTween = ColorTween(
-          begin: oldWidget.foregroundColor,
-          end: widget.foregroundColor,
-        );
-      } else {
-        foregroundColorTween = null;
-      }
-
-      _controller!
+      _controller
         ..value = 0
         ..forward();
     }
   }
 
+  void _updateColorTweens(CircleProgressBar oldWidget) {
+    if (widget.backgroundColor != oldWidget.backgroundColor) {
+      _backgroundColorTween = ColorTween(
+        begin: oldWidget.backgroundColor,
+        end: widget.backgroundColor,
+      );
+    } else {
+      _backgroundColorTween = null;
+    }
+
+    if (widget.foregroundColor != oldWidget.foregroundColor) {
+      _foregroundColorTween = ColorTween(
+        begin: oldWidget.foregroundColor,
+        end: widget.foregroundColor,
+      );
+    } else {
+      _foregroundColorTween = null;
+    }
+  }
+
   @override
   void dispose() {
-    _controller!.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -152,68 +166,63 @@ class CircleProgressBarState extends State<CircleProgressBar>
     return AspectRatio(
       aspectRatio: 1,
       child: AnimatedBuilder(
-        animation: curve,
-        child: Container(),
+        animation: _curve,
         builder: (context, child) {
           final backgroundColor =
-              backgroundColorTween?.evaluate(curve) ?? widget.backgroundColor;
+              _backgroundColorTween?.evaluate(_curve) ?? widget.backgroundColor;
           final foregroundColor =
-              foregroundColorTween?.evaluate(curve) ?? widget.foregroundColor;
+              _foregroundColorTween?.evaluate(_curve) ?? widget.foregroundColor;
 
           return CustomPaint(
-            foregroundPainter: CircleProgressBarPainter(
+            foregroundPainter: _CircleProgressBarPainter(
               backgroundColor: backgroundColor,
               foregroundColor: foregroundColor,
-              percentage: valueTween!.evaluate(curve),
+              percentage: _valueTween!.evaluate(_curve),
             ),
             child: child,
           );
         },
+        child: Container(),
       ),
     );
   }
 }
 
-// Draws the progress bar.
-class CircleProgressBarPainter extends CustomPainter {
+class _CircleProgressBarPainter extends CustomPainter {
   final double percentage;
   final double strokeWidth;
   final Color? backgroundColor;
   final Color foregroundColor;
 
-  CircleProgressBarPainter({
+  _CircleProgressBarPainter({
     this.backgroundColor,
     required this.foregroundColor,
     required this.percentage,
     double? strokeWidth,
-  }) : strokeWidth = strokeWidth ?? 3;
+  }) : strokeWidth = strokeWidth ?? 3.0;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final Offset center = size.center(Offset.zero);
-    final Size constrainedSize =
-        size - Offset(strokeWidth, strokeWidth) as Size;
-    final shortestSide =
-        math.min(constrainedSize.width, constrainedSize.height);
+    final center = size.center(Offset.zero);
+    final radius = (math.min(size.width, size.height) / 2) - strokeWidth / 2;
+
+    final backgroundPaint = Paint()
+      ..color = backgroundColor ?? Colors.transparent
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke;
+
     final foregroundPaint = Paint()
       ..color = foregroundColor
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
-    final radius = (shortestSide / 2);
 
-    // Start at the top. 0 radians represents the right edge
-    const double startAngle = -(2 * math.pi * 0.25);
-    final double sweepAngle = (2 * math.pi * (percentage));
-
-    // Don't draw the background if we don't have a background color
     if (backgroundColor != null) {
-      final backgroundPaint = Paint()
-        ..color = backgroundColor!
-        ..strokeWidth = strokeWidth
-        ..style = PaintingStyle.stroke;
       canvas.drawCircle(center, radius, backgroundPaint);
     }
+
+    const startAngle = -(2 * math.pi * 0.25); // start at 12 o'clock.
+    final sweepAngle = 2 * math.pi * percentage;
 
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
@@ -226,7 +235,7 @@ class CircleProgressBarPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
-    final oldPainter = (oldDelegate as CircleProgressBarPainter);
+    final oldPainter = oldDelegate as _CircleProgressBarPainter;
     return oldPainter.percentage != percentage ||
         oldPainter.backgroundColor != backgroundColor ||
         oldPainter.foregroundColor != foregroundColor ||
