@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:os_onboarding_screen/@core/components/display_image.dart';
 import 'package:os_onboarding_screen/@core/components/indicators/dot_indicator.dart';
 import 'package:os_onboarding_screen/@core/components/indicators/simple_progress_round_button.dart';

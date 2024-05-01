@@ -64,6 +64,7 @@ class SimpleProgressRoundButtonWidget extends StatelessWidget {
               : const Icon(
                   Icons.check,
                   color: Colors.white,
+                  size: _iconSize,
                 )),
     );
   }
