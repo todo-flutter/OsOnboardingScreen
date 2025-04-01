@@ -43,124 +43,144 @@ class SimpleOnboardingView extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = OnBoardingStateController.of(context);
 
-    return Column(
-      children: [
-        // Skip button
-        Visibility(
-          visible: !state.isLastIndex,
-          maintainAnimation: true,
-          maintainSize: true,
-          maintainState: true,
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: TextButton(
-              onPressed: state.skip,
-              child: Text(
-                buttonSkipTitle,
-                style: OnBoardingStateController.of(context)
-                    .styles
-                    .buttonSkipStyle,
-              ),
-            ),
-          ),
-        ),
-        // Page view with onboarding content
-        Expanded(
-          flex: 9,
-          child: PageView.builder(
-            controller: state.pageController,
-            onPageChanged: (index) => state.setPage(index, false),
-            itemCount: state.length,
-            itemBuilder: (context, index) {
-              final pageData = state.pages[index];
-              return Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    DisplayImage(
-                      imageUrl: pageData.imageUrl,
-                      size: pageData.imageSize,
-                      backgroundColor: pageData.backgroundColor,
-                    ),
-                    const SizedBox(
-                      height: InsetsHelper.i10,
-                    ),
-                    Text(
-                      pageData.title,
-                      style: state.styles.titleStyle,
-                    ),
-                    Text(
-                      pageData.subTitle,
-                      style: state.styles.subTitleStyle,
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-        // Navigation controls and indicators
-        Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            // Done button (visible on the last page)
-            Visibility(
-              visible: state.isLastIndex && isSimple,
-              maintainAnimation: true,
-              maintainSize: true,
-              maintainState: true,
-              child: TextButton(
-                onPressed: state.onDone,
-                child: Text(
-                  buttonDoneTitle,
-                  style: state.styles.buttonDoneStyle,
-                ),
-              ),
-            ),
+    final padding = MediaQuery.of(context).padding;
 
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: InsetsHelper.i10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Visibility(
-                    visible: state.currentIndex > 0,
-                    maintainAnimation: true,
-                    maintainSize: true,
-                    maintainState: true,
-                    child: IconButton(
-                        onPressed: () => state.prev(),
-                        icon: Icon(
-                          Icons.arrow_back_ios,
-                          color: state.styles.indicatorColor,
-                        )),
-                  ),
-                  isSimple
-                      ? Expanded(
-                          child: CustomDotIndicator(
-                            currentIndex: state.currentIndex,
-                            totalDots: state.length,
-                          ),
-                        )
-                      : const SimpleProgressRoundButtonWidget(),
-                  Visibility(
-                    visible: !state.isLastIndex,
-                    maintainAnimation: true,
-                    maintainSize: true,
-                    maintainState: true,
-                    child: IconButton(
-                        onPressed: () => state.next(),
-                        icon: Icon(
-                          Icons.arrow_forward_ios,
-                          color: state.styles.indicatorColor,
-                        )),
-                  )
-                ],
+    return Stack(
+      children: [
+        // Page view with onboarding content
+        Column(
+          children: [
+            Expanded(
+              child: PageView.builder(
+                controller: state.pageController,
+                onPageChanged: (index) => state.setPage(index, false),
+                itemCount: state.length,
+                itemBuilder: (context, index) {
+                  final pageData = state.pages[index];
+                  return Stack(
+                    children: [
+                      Positioned(
+                        bottom: InsetsHelper.i0,
+                        top: InsetsHelper.i0,
+                        right: InsetsHelper.i0,
+                        left: InsetsHelper.i0,
+                        child: DisplayImage(
+                          imageUrl: pageData.imageUrl,
+                          size: pageData.imageSize,
+                          backgroundColor: pageData.backgroundColor,
+                          boxFit: pageData.imageFit,
+                        ),
+                      ),
+                      Positioned(
+                        bottom: InsetsHelper.i56 +
+                            padding.bottom +
+                            (isSimple ? InsetsHelper.i0 : innerCircleSize),
+                        left: InsetsHelper.i0,
+                        right: InsetsHelper.i0,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              pageData.title,
+                              style: state.styles.titleStyle,
+                            ),
+                            Text(
+                              pageData.subTitle,
+                              style: state.styles.subTitleStyle,
+                            )
+                          ],
+                        ),
+                      )
+                    ],
+                  );
+                },
               ),
-            )
+            ),
           ],
+        ),
+
+        // // Navigation controls and indicators
+        Positioned(
+          bottom: padding.bottom,
+          right: InsetsHelper.i10,
+          left: InsetsHelper.i10,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Visibility(
+                visible: state.currentIndex > 0,
+                maintainAnimation: true,
+                maintainSize: true,
+                maintainState: true,
+                child: IconButton(
+                    onPressed: () => state.prev(),
+                    icon: Icon(
+                      Icons.arrow_back_ios,
+                      color: state.styles.indicatorColor,
+                    )),
+              ),
+              isSimple
+                  ? Expanded(
+                      child: CustomDotIndicator(
+                        currentIndex: state.currentIndex,
+                        totalDots: state.length,
+                      ),
+                    )
+                  : const SimpleProgressRoundButtonWidget(),
+              Visibility(
+                visible: !state.isLastIndex,
+                maintainAnimation: true,
+                maintainSize: true,
+                maintainState: true,
+                child: IconButton(
+                    onPressed: () => state.next(),
+                    icon: Icon(
+                      Icons.arrow_forward_ios,
+                      color: state.styles.indicatorColor,
+                    )),
+              )
+            ],
+          ),
+        ),
+
+        // Skip button
+        Positioned(
+          right: InsetsHelper.i10,
+          top: padding.top < InsetsHelper.i10 ? InsetsHelper.i10 : padding.top,
+          child: Row(
+            children: [
+              Visibility(
+                visible: state.isLastIndex && isSimple,
+                maintainAnimation: false,
+                maintainSize: false,
+                maintainState: false,
+                child: TextButton(
+                  onPressed: state.onDone,
+                  child: Text(
+                    buttonDoneTitle,
+                    style: state.styles.buttonDoneStyle,
+                  ),
+                ),
+              ),
+              Visibility(
+                visible: !state.isLastIndex,
+                maintainAnimation: false,
+                maintainSize: false,
+                maintainState: false,
+                child: TextButton(
+                  onPressed: state.skip,
+                  child: Text(
+                    buttonSkipTitle,
+                    style: OnBoardingStateController.of(context)
+                        .styles
+                        .buttonSkipStyle,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );

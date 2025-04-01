@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:os_onboarding_screen/@core/utils/inserts_helper.dart';
 
 /// A widget for displaying images from various sources and formats.
 ///
@@ -30,13 +31,15 @@ class DisplayImage extends StatelessWidget {
   final String imageUrl; // The URL or asset path of the image
   final Color?
       backgroundColor; // Optional background color (used as a tint or filter)
-  final Size size; // Desired size of the image
+  final Size? size; // Desired size of the image
+  final BoxFit boxFit;
 
   const DisplayImage({
     super.key,
     required this.imageUrl,
     this.backgroundColor,
-    required this.size,
+    this.size,
+    this.boxFit = BoxFit.contain,
   });
 
   @override
@@ -55,21 +58,21 @@ class DisplayImage extends StatelessWidget {
       if (extension == 'svg') {
         // Handle SVG images
         return isNetworkImage
-            ? SvgPicture.network(
-                imageUrl,
-                height: size.height,
-                width: size.width,
+            ? SvgPicture.network(imageUrl,
+                height: size?.height,
+                width: size?.width,
                 colorFilter: backgroundColor != null
                     ? ColorFilter.mode(backgroundColor!, BlendMode.srcIn)
                     : null,
-              )
+                fit: boxFit)
             : SvgPicture.asset(
                 imageUrl,
-                height: size.height,
-                width: size.width,
+                height: size?.height,
+                width: size?.width,
                 colorFilter: backgroundColor != null
                     ? ColorFilter.mode(backgroundColor!, BlendMode.srcIn)
                     : null,
+                fit: boxFit,
               );
       }
 
@@ -81,23 +84,44 @@ class DisplayImage extends StatelessWidget {
         return isNetworkImage
             ? Image.network(
                 imageUrl,
-                height: size.height,
-                width: size.width,
+                height: size?.height,
+                width: size?.width,
                 color: backgroundColor,
+                fit: boxFit,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              (loadingProgress.expectedTotalBytes ?? 1)
+                          : null,
+                    ),
+                  );
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    height: size?.height,
+                    width: size?.width,
+                    color: backgroundColor ??
+                        Colors.grey[200], // Color de fondo si la imagen falla
+                    child: Icon(Icons.error,
+                        color: Colors.red, size: InsetsHelper.i56),
+                  );
+                },
               )
-            : Image.asset(
-                imageUrl,
-                height: size.height,
-                width: size.width,
+            : Image.asset(imageUrl,
+                height: size?.height,
+                width: size?.width,
                 color: backgroundColor,
-              );
+                fit: boxFit);
       }
     }
 
     // Fallback widget for unknown image formats
     return Icon(
       Icons.error,
-      size: size.height,
+      size: size?.height,
     );
   }
 }

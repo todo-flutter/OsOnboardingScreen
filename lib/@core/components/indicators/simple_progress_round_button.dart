@@ -4,7 +4,7 @@ import 'dart:math' as math;
 import 'package:os_onboarding_screen/onboarding_controller.dart';
 
 const double _circleSize = 80.0;
-const double _innerCircleSize = 55.0;
+const double innerCircleSize = 55.0;
 const double _iconSize = 15.0;
 
 /// A round button widget with a progress indicator used in onboarding screens.
@@ -48,8 +48,8 @@ class SimpleProgressRoundButtonWidget extends StatelessWidget {
             Theme.of(context).primaryColor;
 
     return Container(
-      height: _innerCircleSize,
-      width: _innerCircleSize,
+      height: innerCircleSize,
+      width: innerCircleSize,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: color,

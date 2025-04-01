@@ -38,7 +38,7 @@ class CustomDotIndicator extends StatelessWidget {
         children: List.generate(
           totalDots,
           (index) => AnimatedContainer(
-            duration: const Duration(milliseconds: 300), // Animation duration
+            duration: const Duration(milliseconds: 300),
             margin: const EdgeInsets.symmetric(horizontal: InsetsHelper.i4),
             width: currentIndex == index ? InsetsHelper.i30 : inactiveSize,
             height: currentIndex == index ? activeSize : inactiveSize,
@@ -46,7 +46,7 @@ class CustomDotIndicator extends StatelessWidget {
               borderRadius: BorderRadius.circular(InsetsHelper.i10),
               color: currentIndex == index
                   ? indicatorColor
-                  : indicatorColor.withOpacity(0.5),
+                  : indicatorColor.withValues(alpha: 0.5),
             ),
           ),
         ),

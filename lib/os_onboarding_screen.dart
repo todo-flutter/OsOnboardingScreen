@@ -1,4 +1,4 @@
-library os_onboarding_screen;
+library;
 
 import 'package:flutter/material.dart';
 import 'package:os_onboarding_screen/@core/screens/simple_screen.dart';
@@ -103,18 +103,16 @@ class _OSOnboardingScreenState extends State<OSOnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Container(
-        color: onboardingStyles.backgroundColor,
-        child: OnBoardingStateController(
-          onDone: widget.onDone,
-          currentIndex: _currentIndex,
-          pageController: _pageController,
-          setPage: _setPage,
-          pages: widget.pages,
-          styles: onboardingStyles,
-          child: _buildOnboardingView(),
-        ),
+    return Scaffold(
+      backgroundColor: onboardingStyles.backgroundColor,
+      body: OnBoardingStateController(
+        onDone: widget.onDone,
+        currentIndex: _currentIndex,
+        pageController: _pageController,
+        setPage: _setPage,
+        pages: widget.pages,
+        styles: onboardingStyles,
+        child: _buildOnboardingView(),
       ),
     );
   }

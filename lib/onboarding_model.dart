@@ -25,7 +25,8 @@ class OnboardingModel {
   final String imageUrl; // URL or asset path for the image
   final String title; // Title or heading for the page
   final String subTitle; // Subtitle or description for the page
-  final Size imageSize; // Size of the image, default is `Size(250, 250)`
+  final Size? imageSize; // Size of the image, default is `Size(250, 250)`
+  final BoxFit imageFit; // How a image should be inscribed into another box.
   final TextStyle titleTextStyle; // Text style for the title
   final TextStyle subTitleTextStyle; // Text style for the subtitle
   final Color? backgroundColor; // Optional background color for the page
@@ -34,7 +35,8 @@ class OnboardingModel {
     required this.imageUrl,
     required this.title,
     required this.subTitle,
-    this.imageSize = const Size(250, 250),
+    this.imageSize,
+    this.imageFit = BoxFit.contain,
     this.titleTextStyle = const TextStyle(),
     this.subTitleTextStyle = const TextStyle(),
     this.backgroundColor,
