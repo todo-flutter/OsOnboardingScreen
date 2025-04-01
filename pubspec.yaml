@@ -1,5 +1,5 @@
 name: os_onboarding_screen
-description: "The os_onboarding_screen library is a comprehensive solution for creating customizable onboarding experiences in Flutter applications. It offers a flexible framework for building onboarding screens with multiple pages, customizable styles, and interactive navigation. This library is designed to help developers create seamless onboarding processes for their apps, enabling a smooth transition for new users."
+description: "The os_onboarding_screen library is a comprehensive solution for creating customizable onboarding experiences in Flutter applications."
 version: 1.0.1
 homepage: https://github.com/todo-flutter/OsOnboardingScreen
 
